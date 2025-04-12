@@ -66,18 +66,6 @@ temp_anomaly_april2024 <- terra::subset(
 terra::plot(temp_anomaly_april2024)
 plot(sf::st_geometry(world_sf), add = T)
 
-robinson_proj <- "+proj=robin +over"
-
-temp_anomaly_april2024_proj <- terra::project(
-    temp_anomaly_april2024,
-    robinson_proj
-)
-
-world_sf_proj <- sf::st_transform(
-    world_sf,
-    crs = robinson_proj
-)
-
 world_bb <- sf::st_union(
     sf::st_make_grid(
         sf::st_bbox(
@@ -85,15 +73,14 @@ world_bb <- sf::st_union(
         ),
         n = 100
     )
-) |>
-    sf::st_transform(crs = robinson_proj)
-
+)
+    
 terra::plot(temp_anomaly_april2024_proj)
 plot(sf::st_geometry(world_sf_proj), add = TRUE)
 plot(sf::st_geometry(world_bb), add = TRUE)
 
 temp_anomaly_april2024_proj <- terra::crop(
-    temp_anomaly_april2024_proj,
+    temp_anomaly_april2024,
     world_bb
 )
 
@@ -140,6 +127,8 @@ theme_for_the_win <- function() {
         )
 }
 
+robinson_proj <- "+proj=robin +over"
+
 map1 <- ggplot() +
     tidyterra::geom_spatraster(
         data = temp_anomaly_april2024_proj
@@ -173,6 +162,7 @@ map1 <- ggplot() +
         labels = round(breaks, 0),
         na.value = "white"
     ) +
+    coord_sf(crs = robinson_proj) +
     guides(
         fill = guide_colorbar(
             direction = "vertical",
@@ -253,6 +243,7 @@ map2 <- ggplot() +
     #     labels = round(breaks, 0),
     #     na.value = "white"
     # ) +
+    coord_sf(crs = robinson_proj) +
     guides(
         fill = guide_colorbar(
             direction = "vertical",
